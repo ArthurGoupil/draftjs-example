@@ -9,6 +9,7 @@ import {
   getLetterBeforeCursor,
   getLetterAfterCursor,
   getCurrentSelection,
+  getCurrentBlock,
 } from '../helpers/editorHelper';
 import BlockStyleToolbar from './blockStyles/BlockStyleToolbar';
 
@@ -57,11 +58,12 @@ function MyEditor() {
     }
   };
 
-  const handleReturn = (e) => {
-    if (e.shiftKey) {
-      handleEditorChange({
-        editorState: RichUtils.insertSoftNewline(editorState),
-      });
+  const handleReturn = (event) => {
+    if (
+      getCurrentBlock(editorState).getType() === 'blockquote' &&
+      event.shiftKey
+    ) {
+      handleEditorChange(RichUtils.insertSoftNewline(editorState));
       return 'handled';
     }
     return 'not-handled';

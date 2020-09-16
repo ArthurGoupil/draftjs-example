@@ -64,10 +64,11 @@ pre {
 }
 
 .RichEditor-blockquote {
-  background: #e5eef3;
+  background-color: #e5eef3;
   border-left: 10px solid darkslateblue;
   margin: 1.5em 10px;
   padding: 0.5em 10px;
+  font-style: italic;
 }
 
 .styleButton#bold {
