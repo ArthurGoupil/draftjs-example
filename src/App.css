@@ -1,38 +1,69 @@
 .App {
-  text-align: center;
+  width: 100vw;
+  height: 100vh;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.editor-wrapper {
+  margin: 10px 0;
+  background-image: linear-gradient(to bottom, #fdfbfb 0%, #f6f7fb 100%);
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.editor-container {
+  margin: 40px;
+  padding: 20px;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+.styleButton,
+.RichEditor-styleButton {
+  padding: 8px;
+  border: none;
+  margin: 5px;
+  width: 40px;
+  font-size: 13px;
+  border-radius: 5px;
+}
+
+.RichEditor-activeButton {
+  background-color: darkslateblue;
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
+button,
+select {
+  padding: 8px;
+  border: none;
+  font-size: 13px;
+  border-radius: 5px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+  background-color: white;
+  cursor: pointer;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+button {
+  margin: 5px;
+}
+
+select {
+  margin: 5px 5px 5px 0;
+}
+
+pre {
+  background-color: #e2e2e2;
+  padding: 1px 7px;
+  border-radius: 5px;
+}
+
+.styleButton#bold {
+  font-weight: bold;
+}
+
+.styleButton#italic {
+  font-style: italic;
+}
+
+.styleButton#underline {
+  text-decoration: underline;
 }
