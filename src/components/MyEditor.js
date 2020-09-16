@@ -1,19 +1,16 @@
 import React, { useState } from 'react';
-import { Editor, EditorState, RichUtils, getDefaultKeyBinding } from 'draft-js';
+import { Editor, EditorState, RichUtils } from 'draft-js';
 
 import 'draft-js/dist/Draft.css';
 
 import {
-  getCurrentBlock,
   getCurrentBlockText,
   getCursorPosition,
   getLetterBeforeCursor,
   getLetterAfterCursor,
   getCurrentSelection,
 } from '../helpers/editorHelper';
-import BlockStyleToolbar, {
-  getBlockStyle,
-} from './blockStyles/BlockStyleToolbar';
+import BlockStyleToolbar from './blockStyles/BlockStyleToolbar';
 
 function MyEditor() {
   // Create empty editor
@@ -30,7 +27,7 @@ function MyEditor() {
     setEditorState(newEditorState);
   };
 
-  // Make the editor understand shortcuts like CMD + B etc
+  // Make the editor understand default shortcuts (bold, italic, underline)
   const handleKeyCommand = (command, editorState) => {
     const newState = RichUtils.handleKeyCommand(editorState, command);
 
@@ -51,6 +48,25 @@ function MyEditor() {
     return 'not-handled';
   };
 
+  const getBlockClassName = (block) => {
+    switch (block.getType()) {
+      case 'blockquote':
+        return 'RichEditor-blockquote';
+      default:
+        return null;
+    }
+  };
+
+  const handleReturn = (e) => {
+    if (e.shiftKey) {
+      handleEditorChange({
+        editorState: RichUtils.insertSoftNewline(editorState),
+      });
+      return 'handled';
+    }
+    return 'not-handled';
+  };
+
   return (
     <div className='editor-container'>
       <BlockStyleToolbar
@@ -60,10 +76,11 @@ function MyEditor() {
       <div className='editor-wrapper'>
         <Editor
           onTab={handleNestedLists}
-          blockStyleFn={getBlockStyle}
+          blockStyleFn={getBlockClassName}
           editorState={editorState}
           onChange={handleEditorChange}
           handleKeyCommand={handleKeyCommand}
+          handleReturn={handleReturn}
           placeholder='Write something here...'
         />
       </div>

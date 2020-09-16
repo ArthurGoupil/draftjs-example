@@ -3,9 +3,9 @@
   height: 100vh;
 }
 
-.editor-wrapper {
+.public-DraftEditor-content {
   max-height: 200px;
-
+  overflow: auto;
   margin: 10px 0;
   background-image: linear-gradient(to bottom, #fdfbfb 0%, #f6f7fb 100%);
   padding: 20px;
@@ -61,6 +61,13 @@ pre {
   background-color: #e2e2e2;
   padding: 1px 7px;
   border-radius: 5px;
+}
+
+.RichEditor-blockquote {
+  background: #e5eef3;
+  border-left: 10px solid darkslateblue;
+  margin: 1.5em 10px;
+  padding: 0.5em 10px;
 }
 
 .styleButton#bold {

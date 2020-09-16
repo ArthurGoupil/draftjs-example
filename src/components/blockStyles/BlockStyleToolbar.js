@@ -29,15 +29,6 @@ const HEADER_TYPES = [
   { label: 'H6', block: 'header-six' },
 ];
 
-export const getBlockStyle = (block) => {
-  switch (block.getType()) {
-    case 'blockquote':
-      return 'RichEditor-blockquote';
-    default:
-      return null;
-  }
-};
-
 const BlockStyleToolbar = ({ editorState, handleEditorChange }) => {
   const selection = editorState.getSelection();
   const blockType = editorState
