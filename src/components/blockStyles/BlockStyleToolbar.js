@@ -4,12 +4,11 @@ import { RichUtils } from 'draft-js';
 
 import InlineStyleButton from './InlineStyleButton';
 import BlockStyleButton from './BlockStyleButton';
-import HeaderStyleDropdown from './HeaderStyleDropdown';
 
 const INLINE_TYPES = [
-  { label: 'bold', style: 'BOLD' },
-  { label: 'italic', style: 'ITALIC' },
-  { label: 'underline', style: 'UNDERLINE' },
+  { label: 'bold', style: 'BOLD', tooltip: 'cmd + B' },
+  { label: 'italic', style: 'ITALIC', tooltip: 'cmd + I' },
+  { label: 'underline', style: 'UNDERLINE', tooltip: 'cmd + U' },
   { label: 'strikethrough', style: 'STRIKETHROUGH' },
   { label: 'code', style: 'CODE' },
 ];
@@ -22,12 +21,12 @@ const BLOCK_TYPES = [
 ];
 
 const HEADER_TYPES = [
-  { label: 'H1', style: 'header-one' },
-  { label: 'H2', style: 'header-two' },
-  { label: 'H3', style: 'header-three' },
-  { label: 'H4', style: 'header-four' },
-  { label: 'H5', style: 'header-five' },
-  { label: 'H6', style: 'header-six' },
+  { label: 'H1', block: 'header-one' },
+  { label: 'H2', block: 'header-two' },
+  { label: 'H3', block: 'header-three' },
+  { label: 'H4', block: 'header-four' },
+  { label: 'H5', block: 'header-five' },
+  { label: 'H6', block: 'header-six' },
 ];
 
 export const getBlockStyle = (block) => {
@@ -67,23 +66,34 @@ const BlockStyleToolbar = ({ editorState, handleEditorChange }) => {
   return (
     <div>
       <span className='richEditor-controls'>
-        <HeaderStyleDropdown
-          headerOptions={HEADER_TYPES}
-          active={blockType}
-          onToggle={toggleBlockType}
-        />
-        {INLINE_TYPES.map((type) => {
-          return (
-            <InlineStyleButton
-              active={isCurrentInlineStyle(type.style)}
-              label={type.label}
-              onToggle={toggleInlineStyle}
-              style={type.style}
-              key={type.label}
-            />
-          );
-        })}
-        {BLOCK_TYPES.map((type) => {
+        <span className='inline-controls-wrapper'>
+          {INLINE_TYPES.map((type) => {
+            return (
+              <InlineStyleButton
+                active={isCurrentInlineStyle(type.style)}
+                label={type.label}
+                onToggle={toggleInlineStyle}
+                style={type.style}
+                key={type.label}
+                tooltip={type.tooltip}
+              />
+            );
+          })}
+        </span>
+        <span className='first-block-controls-wrapper'>
+          {BLOCK_TYPES.map((type) => {
+            return (
+              <BlockStyleButton
+                active={type.block === blockType}
+                label={type.label}
+                onToggle={toggleBlockType}
+                block={type.block}
+                key={type.label}
+              />
+            );
+          })}
+        </span>
+        {HEADER_TYPES.map((type) => {
           return (
             <BlockStyleButton
               active={type.block === blockType}

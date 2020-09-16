@@ -15,9 +15,10 @@ const getStyledLabel = (label) => {
   }
 };
 
-const InlineStyleButton = ({ active, label, onToggle, style }) => {
+const InlineStyleButton = ({ active, label, onToggle, style, tooltip }) => {
   return (
     <button
+      title={tooltip}
       data-style={style}
       className={`${active && ' RichEditor-activeButton'}`}
       onMouseDown={onToggle}
