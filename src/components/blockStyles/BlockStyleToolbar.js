@@ -9,15 +9,23 @@ const INLINE_TYPES = [
   { label: 'bold', style: 'BOLD', tooltip: 'cmd + B' },
   { label: 'italic', style: 'ITALIC', tooltip: 'cmd + I' },
   { label: 'underline', style: 'UNDERLINE', tooltip: 'cmd + U' },
-  { label: 'strikethrough', style: 'STRIKETHROUGH' },
-  { label: 'code', style: 'CODE' },
+  {
+    label: 'strikethrough',
+    style: 'STRIKETHROUGH',
+    tooltip: 'cmd + shift + X',
+  },
+  { label: 'code', style: 'CODE', tooltip: 'cmd + shift + C' },
 ];
 
 const BLOCK_TYPES = [
-  { label: 'bloc de code', block: 'code-block' },
-  { label: 'citation', block: 'blockquote' },
-  { label: '• liste', block: 'unordered-list-item' },
-  { label: '1. liste', block: 'ordered-list-item' },
+  { label: 'bloc de code', block: 'code-block', tooltip: 'cmd + shift + V' },
+  { label: 'citation', block: 'blockquote', tooltip: 'cmd + shift + G' },
+  {
+    label: '• liste',
+    block: 'unordered-list-item',
+    tooltip: 'cmd + shift + U',
+  },
+  { label: '1. liste', block: 'ordered-list-item', tooltip: 'cmd + shift + O' },
 ];
 
 const HEADER_TYPES = [
@@ -80,6 +88,7 @@ const BlockStyleToolbar = ({ editorState, handleEditorChange }) => {
                 onToggle={toggleBlockType}
                 block={type.block}
                 key={type.label}
+                tooltip={type.tooltip}
               />
             );
           })}
