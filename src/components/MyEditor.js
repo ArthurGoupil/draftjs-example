@@ -42,7 +42,7 @@ function MyEditor() {
   };
 
   const handleNestedLists = (event) => {
-    const newState = RichUtils.onTab(event, editorState, 6);
+    const newState = RichUtils.onTab(event, editorState, 4);
 
     if (newState) {
       handleEditorChange(newState);

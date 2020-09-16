@@ -4,6 +4,8 @@
 }
 
 .editor-wrapper {
+  max-height: 200px;
+
   margin: 10px 0;
   background-image: linear-gradient(to bottom, #fdfbfb 0%, #f6f7fb 100%);
   padding: 20px;

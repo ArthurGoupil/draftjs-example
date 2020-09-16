@@ -11,13 +11,14 @@ const INLINE_TYPES = [
   { label: 'italic', style: 'ITALIC' },
   { label: 'underline', style: 'UNDERLINE' },
   { label: 'strikethrough', style: 'STRIKETHROUGH' },
+  { label: 'code', style: 'CODE' },
 ];
 
 const BLOCK_TYPES = [
-  { label: ' “ ” ', block: 'blockquote' },
-  { label: 'UL', block: 'unordered-list-item' },
-  { label: 'OL', block: 'ordered-list-item' },
-  { label: '{ }', block: 'code-block' },
+  { label: 'bloc de code', block: 'code-block' },
+  { label: 'citation', block: 'blockquote' },
+  { label: '• liste', block: 'unordered-list-item' },
+  { label: '1. liste', block: 'ordered-list-item' },
 ];
 
 const HEADER_TYPES = [
