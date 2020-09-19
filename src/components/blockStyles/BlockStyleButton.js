@@ -5,7 +5,9 @@ const BlockStyleButton = ({ active, label, onToggle, block, tooltip }) => {
     <button
       title={tooltip}
       data-block={block}
-      className={`${active && ' RichEditor-activeButton'}`}
+      className={`${active && ' RichEditor-activeButton'} ${
+        label === 'bold' && 'first-item'
+      }`}
       onMouseDown={onToggle}
     >
       {label}

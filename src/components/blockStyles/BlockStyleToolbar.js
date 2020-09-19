@@ -4,6 +4,7 @@ import { RichUtils } from 'draft-js';
 
 import InlineStyleButton from './InlineStyleButton';
 import BlockStyleButton from './BlockStyleButton';
+import SaveSelectionButton from './SaveSelectionButton';
 
 const INLINE_TYPES = [
   { label: 'bold', style: 'BOLD', tooltip: 'cmd + B' },
@@ -15,6 +16,7 @@ const INLINE_TYPES = [
     tooltip: 'cmd + shift + X',
   },
   { label: 'code', style: 'CODE', tooltip: 'cmd + shift + C' },
+  { label: 'highlight', style: 'HIGHLIGHT', tooltip: 'cmd + shift + H' },
 ];
 
 const BLOCK_TYPES = [
@@ -37,7 +39,12 @@ const HEADER_TYPES = [
   { label: 'H6', block: 'header-six' },
 ];
 
-const BlockStyleToolbar = ({ editorState, handleEditorChange }) => {
+const BlockStyleToolbar = ({
+  editorState,
+  handleEditorChange,
+  savedSelections,
+  setSavedSelections,
+}) => {
   const selection = editorState.getSelection();
   const blockType = editorState
     .getCurrentContent()
@@ -65,7 +72,7 @@ const BlockStyleToolbar = ({ editorState, handleEditorChange }) => {
   return (
     <div>
       <span className='richEditor-controls'>
-        <span className='inline-controls-wrapper'>
+        <span className='controls-margin-right'>
           {INLINE_TYPES.map((type) => {
             return (
               <InlineStyleButton
@@ -79,7 +86,7 @@ const BlockStyleToolbar = ({ editorState, handleEditorChange }) => {
             );
           })}
         </span>
-        <span className='first-block-controls-wrapper'>
+        <span className='controls-margin-right'>
           {BLOCK_TYPES.map((type) => {
             return (
               <BlockStyleButton
@@ -93,17 +100,26 @@ const BlockStyleToolbar = ({ editorState, handleEditorChange }) => {
             );
           })}
         </span>
-        {HEADER_TYPES.map((type) => {
-          return (
-            <BlockStyleButton
-              active={type.block === blockType}
-              label={type.label}
-              onToggle={toggleBlockType}
-              block={type.block}
-              key={type.label}
-            />
-          );
-        })}
+        <span className='controls-margin-right'>
+          {HEADER_TYPES.map((type) => {
+            return (
+              <BlockStyleButton
+                active={type.block === blockType}
+                label={type.label}
+                onToggle={toggleBlockType}
+                block={type.block}
+                key={type.label}
+              />
+            );
+          })}
+        </span>
+        <span>
+          <SaveSelectionButton
+            editorState={editorState}
+            savedSelections={savedSelections}
+            setSavedSelections={setSavedSelections}
+          />
+        </span>
       </span>
     </div>
   );

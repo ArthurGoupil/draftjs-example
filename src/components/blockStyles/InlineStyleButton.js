@@ -20,7 +20,9 @@ const InlineStyleButton = ({ active, label, onToggle, style, tooltip }) => {
     <button
       title={tooltip}
       data-style={style}
-      className={`${active && ' RichEditor-activeButton'}`}
+      className={`${active && ' RichEditor-activeButton'} ${
+        label === 'bold' && 'first-item'
+      }`}
       onMouseDown={onToggle}
     >
       {getStyledLabel(label)}
