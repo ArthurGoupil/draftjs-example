@@ -81,7 +81,7 @@ const SavedSelections = ({
                   onMouseLeave={() =>
                     moveCursorToEndOfSelection(editorState, selection.id)
                   }
-                >
+              >
                   selection
                 </button>
                 <button

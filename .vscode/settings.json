@@ -1,0 +1,6 @@
+{
+  "prettier.singleQuote": true,
+  "editor.formatOnSave": true,
+  "javascript.format.semicolons": "insert",
+  "editor.defaultFormatter": "esbenp.prettier-vscode"
+}

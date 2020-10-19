@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Editor,
   EditorState,
+  SelectionState,
   RichUtils,
   getDefaultKeyBinding,
   KeyBindingUtil,
@@ -26,11 +27,17 @@ function MyEditor() {
   );
   const [savedSelections, setSavedSelections] = useState([]);
   const [displayTooltip, setDisplayTooltip] = useState(false);
-  const [windowSelectionDOMNodeData, setWindowSelectionDOMNodeData] = useState(
-    null
-  );
+  const [windowSelectionDOMNodeData, setWindowSelectionDOMNodeData] = useState({
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0,
+  });
+
+  const currentClickedNodeRef = useRef(null);
 
   const contentState = editorState.getCurrentContent();
+  const selection = editorState.getSelection();
 
   // get selection with window element
   const getWindowSelection = () => {
@@ -48,21 +55,6 @@ function MyEditor() {
   const handleEditorChange = (newEditorState) => {
     const content = editorState.getCurrentContent();
     const newContent = newEditorState.getCurrentContent();
-
-    const selection = newEditorState.getSelection();
-
-    // retrieve window selection DOM node data for tooltip positioning
-    // first part of condition : the selection exists ? second part: avoid IndexSizeError
-    if (!selection.isCollapsed() && window.getSelection().rangeCount > 0) {
-      const windowSelection = getWindowSelection();
-      const DOMNodeData = windowSelection.getRangeAt(0).getBoundingClientRect();
-      setWindowSelectionDOMNodeData(DOMNodeData);
-      setDisplayTooltip(true);
-      console.log(DOMNodeData);
-    } else {
-      setDisplayTooltip(false);
-      setWindowSelectionDOMNodeData(null);
-    }
 
     setEditorState(newEditorState);
   };
@@ -199,8 +191,54 @@ function MyEditor() {
     } else return { x: 0, y: 0 };
   };
 
+  useEffect(() => {
+    if (currentClickedNodeRef.current) {
+      const tooltipIsOn =
+        !selection.isCollapsed() &&
+        selection.getHasFocus() &&
+        selection.getEndOffset() - selection.getStartOffset() > 0 &&
+        // avoid IndexSizeError
+        window.getSelection().rangeCount > 0;
+
+      if (tooltipIsOn) {
+        const windowSelection = getWindowSelection();
+        const DOMNodeData = windowSelection
+          .getRangeAt(0)
+          .getBoundingClientRect();
+        setWindowSelectionDOMNodeData({
+          x: DOMNodeData.x,
+          y: DOMNodeData.y,
+          width: 200,
+          height: 50,
+        });
+        setDisplayTooltip(true);
+        currentClickedNodeRef.current = null;
+      } else if (
+        currentClickedNodeRef.current.className !== 'tooltip-test' &&
+        currentClickedNodeRef.current.parentClassName !== 'tooltip-test'
+      ) {
+        setWindowSelectionDOMNodeData({
+          x: 0,
+          y: 0,
+          width: 0,
+          height: 0,
+        });
+        setDisplayTooltip(false);
+        currentClickedNodeRef.current = null;
+      }
+    }
+  }, [selection]);
+
   return (
-    <div className='editor-container'>
+    <div
+      className='editor-container'
+      onMouseDown={(e) => {
+        currentClickedNodeRef.current = {
+          className: e.target.className,
+          parentClassName: e.target.offsetParent.className,
+        };
+      }}
+    >
       <BlockStyleToolbar
         editorState={editorState}
         handleEditorChange={handleEditorChange}
@@ -248,7 +286,9 @@ function MyEditor() {
       </div>
       {displayTooltip && (
         <>
-          <div className='tooltip-test' />
+          <div className='tooltip-test'>
+            <input />
+          </div>
           <style>
             {`
           .tooltip-test {
@@ -259,7 +299,7 @@ function MyEditor() {
             left: ${getTooltipData().y}px;
             width: 200px;
             height: 50px;
-            z-index: 2;
+            z-index: 1000;
             filter: drop-shadow(0px 0px 20px rgba(0, 0, 0, 0.3));
           }
           .tooltip-test::before {
