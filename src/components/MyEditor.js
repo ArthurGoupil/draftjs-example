@@ -197,8 +197,20 @@ function MyEditor() {
         !selection.isCollapsed() &&
         selection.getHasFocus() &&
         selection.getEndOffset() - selection.getStartOffset() > 0 &&
-        // avoid IndexSizeError
         window.getSelection().rangeCount > 0;
+
+      console.log('isCollapsed', selection.isCollapsed());
+      console.log('hasFocus', selection.getHasFocus());
+      console.log(
+        'Offset is > 0',
+        selection.getEndOffset() - selection.getStartOffset() > 0
+      );
+      console.log(
+        'window range count > 0',
+        window.getSelection().rangeCount > 0
+      );
+      console.log('---');
+      console.log('tooltipIsOn', tooltipIsOn);
 
       if (tooltipIsOn) {
         const windowSelection = getWindowSelection();
@@ -212,22 +224,20 @@ function MyEditor() {
           height: 50,
         });
         setDisplayTooltip(true);
-        currentClickedNodeRef.current = null;
       } else if (
         currentClickedNodeRef.current.className !== 'tooltip-test' &&
         currentClickedNodeRef.current.parentClassName !== 'tooltip-test'
       ) {
+        setDisplayTooltip(false);
         setWindowSelectionDOMNodeData({
           x: 0,
           y: 0,
           width: 0,
           height: 0,
         });
-        setDisplayTooltip(false);
-        currentClickedNodeRef.current = null;
       }
     }
-  }, [selection]);
+  }, [selection, currentClickedNodeRef]);
 
   return (
     <div
