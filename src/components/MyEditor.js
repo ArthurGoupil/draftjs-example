@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   Editor,
   EditorState,
-  SelectionState,
   RichUtils,
   getDefaultKeyBinding,
   KeyBindingUtil,
+  Modifier,
 } from 'draft-js';
 
 import 'draft-js/dist/Draft.css';
@@ -34,10 +34,11 @@ function MyEditor() {
     height: 0,
   });
 
-  const currentClickedNodeRef = useRef(null);
-
-  const contentState = editorState.getCurrentContent();
-  const selection = editorState.getSelection();
+  const currentClickedNodeRef = useRef({
+    className: null,
+    parentClassName: null,
+  });
+  const isEnteringOnEditor = useRef(false);
 
   // get selection with window element
   const getWindowSelection = () => {
@@ -53,8 +54,37 @@ function MyEditor() {
   };
 
   const handleEditorChange = (newEditorState) => {
-    const content = editorState.getCurrentContent();
-    const newContent = newEditorState.getCurrentContent();
+    const selection = newEditorState.getSelection();
+
+    const tooltipCanBeDisplayed =
+      !selection.isCollapsed() &&
+      !isEnteringOnEditor.current &&
+      selection.getHasFocus() &&
+      selection.getEndOffset() - selection.getStartOffset() > 0 &&
+      window.getSelection().rangeCount > 0;
+
+    if (tooltipCanBeDisplayed) {
+      const windowSelection = getWindowSelection();
+      const DOMNodeData = windowSelection.getRangeAt(0).getBoundingClientRect();
+      setWindowSelectionDOMNodeData({
+        x: DOMNodeData.x,
+        y: DOMNodeData.y,
+        width: 200,
+        height: 50,
+      });
+      setDisplayTooltip(true);
+    } else if (
+      currentClickedNodeRef.current.className !== 'tooltip' &&
+      currentClickedNodeRef.current.parentClassName !== 'tooltip'
+    ) {
+      setDisplayTooltip(false);
+      setWindowSelectionDOMNodeData({
+        x: 0,
+        y: 0,
+        width: 0,
+        height: 0,
+      });
+    }
 
     setEditorState(newEditorState);
   };
@@ -177,8 +207,7 @@ function MyEditor() {
 
   const styleMap = {
     HIGHLIGHT: {
-      backgroundColor: 'darkslateblue',
-      color: 'white',
+      backgroundColor: 'Highlight',
     },
   };
 
@@ -191,62 +220,79 @@ function MyEditor() {
     } else return { x: 0, y: 0 };
   };
 
-  useEffect(() => {
-    if (currentClickedNodeRef.current) {
-      const tooltipIsOn =
-        !selection.isCollapsed() &&
-        selection.getHasFocus() &&
-        selection.getEndOffset() - selection.getStartOffset() > 0 &&
-        window.getSelection().rangeCount > 0;
+  // apply/remove inline style (default toggling function may cause problems)
+  const changeInlineStyle = (styleName, changeType) => {
+    const selection = editorState.getSelection();
+    const contentState = editorState.getCurrentContent();
+    let newContentState;
 
-      console.log('isCollapsed', selection.isCollapsed());
-      console.log('hasFocus', selection.getHasFocus());
-      console.log(
-        'Offset is > 0',
-        selection.getEndOffset() - selection.getStartOffset() > 0
+    if (changeType === 'apply') {
+      newContentState = Modifier.applyInlineStyle(
+        contentState,
+        selection,
+        styleName
       );
-      console.log(
-        'window range count > 0',
-        window.getSelection().rangeCount > 0
+    } else if (changeType === 'remove') {
+      newContentState = Modifier.removeInlineStyle(
+        contentState,
+        selection,
+        styleName
       );
-      console.log('---');
-      console.log('tooltipIsOn', tooltipIsOn);
-
-      if (tooltipIsOn) {
-        const windowSelection = getWindowSelection();
-        const DOMNodeData = windowSelection
-          .getRangeAt(0)
-          .getBoundingClientRect();
-        setWindowSelectionDOMNodeData({
-          x: DOMNodeData.x,
-          y: DOMNodeData.y,
-          width: 200,
-          height: 50,
-        });
-        setDisplayTooltip(true);
-      } else if (
-        currentClickedNodeRef.current.className !== 'tooltip-test' &&
-        currentClickedNodeRef.current.parentClassName !== 'tooltip-test'
-      ) {
-        setDisplayTooltip(false);
-        setWindowSelectionDOMNodeData({
-          x: 0,
-          y: 0,
-          width: 0,
-          height: 0,
-        });
-      }
     }
-  }, [selection, currentClickedNodeRef]);
+
+    let newEditorState = EditorState.push(editorState, newContentState);
+
+    handleEditorChange(newEditorState);
+  };
 
   return (
     <div
       className='editor-container'
-      onMouseDown={(e) => {
+      onMouseDownCapture={(e) => {
+        // Storing current clicked node's className in ref
         currentClickedNodeRef.current = {
           className: e.target.className,
           parentClassName: e.target.offsetParent.className,
         };
+
+        // if user clicks on tooltip, replacing selection by highlighting - deleting highlighting otherwise
+        const tooltipIsBeingClicked =
+          currentClickedNodeRef.current.className.includes('tooltip') ||
+          currentClickedNodeRef.current.parentClassName.includes('tooltip');
+        if (tooltipIsBeingClicked) {
+          changeInlineStyle('HIGHLIGHT', 'apply');
+        } else {
+          changeInlineStyle('HIGHLIGHT', 'remove');
+        }
+
+        // fix for very quick tooltip display when clicking (before releasing the click, tooltip is displayed)
+        const editorIsBeingClicked =
+          currentClickedNodeRef.current.className.includes(
+            'public-DraftStyleDefault-block'
+          ) ||
+          currentClickedNodeRef.current.parentClassName.includes(
+            'public-DraftStyleDefault-block'
+          );
+        if (editorIsBeingClicked) {
+          isEnteringOnEditor.current = true;
+        }
+
+        // when currentclick is on tooltip & we click somewhere else, handleEditorChange is not triggered
+        // so when need to manually close tooltip
+        if (
+          displayTooltip &&
+          currentClickedNodeRef.current.className !== 'tooltip' &&
+          currentClickedNodeRef.current.parentClassName !== 'tooltip'
+        ) {
+          setDisplayTooltip(false);
+        }
+      }}
+      // Two events below are necessary in order to make te tooltip appear only when releasing the click
+      onMouseUpCapture={() => {
+        isEnteringOnEditor.current = false;
+      }}
+      onSelectCapture={() => {
+        isEnteringOnEditor.current = false;
       }}
     >
       <BlockStyleToolbar
@@ -296,12 +342,12 @@ function MyEditor() {
       </div>
       {displayTooltip && (
         <>
-          <div className='tooltip-test'>
+          <div className='tooltip'>
             <input />
           </div>
           <style>
             {`
-          .tooltip-test {
+          .tooltip {
             position: absolute;
             background-color: white;
             border-radius: 5px;
@@ -312,7 +358,7 @@ function MyEditor() {
             z-index: 1000;
             filter: drop-shadow(0px 0px 20px rgba(0, 0, 0, 0.3));
           }
-          .tooltip-test::before {
+          .tooltip::before {
             content: '';
             position: absolute;
             transform: rotate(45deg);
